@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Producto {
+  id_producto     Int          @id @default(autoincrement())
+  nombre_producto String       @db.VarChar(255)
+  precio          Decimal      @db.Decimal(10, 2)
+  distribuidor    Distribuidor @relation(fields: [id_distribuidor], references: [id_distribuidor])
+  id_distribuidor Int
+  cantidad        Cantidad?
+  Compra          Compra[]
+
+  @@map("producto")
+}
+
+model Distribuidor {
+  id_distribuidor Int        @id @default(autoincrement())
+  nombre          String     @unique @db.VarChar(255)
+  direccion       String     @db.VarChar(255)
+  telefono        String     @db.VarChar(20)
+  productos       Producto[]
+
+  @@map("distribuidor")
+}
+
+model Cantidad {
+  id_cantidad Int      @id @default(autoincrement())
+  cantidad    Int      @db.Int
+  producto    Producto @relation(fields: [id_producto], references: [id_producto])
+  id_producto Int      @unique
+
+  @@map("cantidad")
+}
+
+model Consumidor {
+  id_consumidor Int      @id @default(autoincrement())
+  nombre        String   @db.VarChar(255)
+  direccion     String   @db.VarChar(255)
+  telefono      String   @db.VarChar(20)
+  compras       Compra[]
+
+  @@map("consumidor")
+}
+
+model Compra {
+  id_compra       Int        @id @default(autoincrement())
+  fecha_compra    DateTime   @db.DateTime
+  cantidad_compra Int        @db.Int
+  consumidor      Consumidor @relation(fields: [id_consumidor], references: [id_consumidor])
+  id_consumidor   Int
+  producto        Producto   @relation(fields: [id_producto], references: [id_producto])
+  id_producto     Int
+
+  @@map("compra")
+}
+
